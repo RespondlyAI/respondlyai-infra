@@ -1,0 +1,63 @@
+# 1. The Internal DNS for the Auth Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: respondlyai
+spec:
+  selector:
+    app: auth-backend
+  ports:
+    - protocol: TCP
+      port: 8080        
+      targetPort: 8080  
+
+---
+# 2. The Spring Boot Application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-backend
+  namespace: respondlyai
+spec:
+  replicas: 1           
+  selector:
+    matchLabels:
+      app: auth-backend
+  template:
+    metadata:
+      labels:
+        app: auth-backend
+    spec:
+      containers:
+        - name: spring-boot-app
+          image: YOUR_DOCKERHUB_USERNAME/auth-service-backend-server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          
+          # First, we inject all the perfectly matched variables
+          envFrom:
+            - configMapRef:
+                name: respondlyai-config
+            - secretRef:
+                name: respondlyai-secrets
+          
+          # Then, we explicitly map the DB_URL to fix the mismatch!
+          env:
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: respondlyai-config
+                  key: AUTH_DB_URL
+            # Let's also force the profile to "dev" instead of local
+            - name: SPRING_PROFILES_ACTIVE
+              value: "dev"
+              
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
