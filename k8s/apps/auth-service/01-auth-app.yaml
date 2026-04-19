@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
         - name: spring-boot-app
-          image: YOUR_DOCKERHUB_USERNAME/auth-service-backend-server:latest
+          image: shubhojitmitradev/auth-service-backend-server:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
