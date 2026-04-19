@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: respondlyai-config
+  namespace: respondlyai
+data:
+  # K8s Internal DNS URLs for the databases
+  AUTH_DB_URL: "jdbc:postgresql://auth-db-service.respondlyai.svc.cluster.local:5432/auth_db"
+  ORG_DB_URL: "jdbc:postgresql://org-db-service.respondlyai.svc.cluster.local:5432/org_db"
+  
+  # K8s Internal DNS for Redis
+  REDIS_HOST: "auth-redis-service.respondlyai.svc.cluster.local"
+  REDIS_PORT: "6379"
+  
+  # General Config
+  THUNDERMAIL_FROM: "kapoorutkarsh17@gmail.com"
