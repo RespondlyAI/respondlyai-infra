@@ -1,0 +1,44 @@
+# 1. The Internal DNS Name
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-redis-service
+  namespace: respondlyai
+spec:
+  selector:
+    app: auth-redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+
+---
+# 2. The Redis Container
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-redis
+  namespace: respondlyai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-redis
+  template:
+    metadata:
+      labels:
+        app: auth-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          command: ["redis-server"]
+          args: ["--requirepass", "$(REDIS_PASSWORD)"]
+          ports:
+            - containerPort: 6379
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: respondlyai-secrets
+                  key: REDIS_PASSWORD
