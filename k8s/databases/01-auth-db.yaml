@@ -1,0 +1,68 @@
+# 1. Requesting the Hard Drive Space
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: auth-db-pvc
+  namespace: respondlyai
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+# 2. Creating the Internal DNS Name
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-db-service
+  namespace: respondlyai
+spec:
+  selector:
+    app: auth-db
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+
+---
+# 3. Running the Actual Database Container
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-db
+  namespace: respondlyai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-db
+  template:
+    metadata:
+      labels:
+        app: auth-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "auth_db"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              # We pull the password dynamically from the Secret we made earlier!
+              valueFrom:
+                secretKeyRef:
+                  name: respondlyai-secrets
+                  key: DB_PASSWORD
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: auth-db-storage
+      volumes:
+        - name: auth-db-storage
+          persistentVolumeClaim:
+            claimName: auth-db-pvc
