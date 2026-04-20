@@ -4,11 +4,9 @@ metadata:
   name: respondlyai-ingress
   namespace: respondlyai
   annotations:
-    # This tells Nginx to process this rule
-    kubernetes.io/ingress.class: nginx
-    # If a user hits /api/auth, we strip that prefix before sending it to Spring Boot
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx
   rules:
     - http:
         paths:
