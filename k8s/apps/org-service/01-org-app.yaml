@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: org-service
+  namespace: respondlyai
+spec:
+  selector:
+    app: org-backend
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: org-backend
+  namespace: respondlyai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: org-backend
+  template:
+    metadata:
+      labels:
+        app: org-backend
+    spec:
+      containers:
+        - name: spring-boot-app
+          # IMPORTANT: Update with your actual Docker Hub username!
+          image: YOUR_DOCKERHUB_USERNAME/org-service-backend-server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          
+          # Inject shared configs and secrets
+          envFrom:
+            - configMapRef:
+                name: respondlyai-config
+            - secretRef:
+                name: respondlyai-secrets
+          
+          # Explicitly map the DB_URL for the Org Service
+          env:
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: respondlyai-config
+                  key: ORG_DB_URL
+            - name: SPRING_PROFILES_ACTIVE
+              value: "dev"
+              
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
