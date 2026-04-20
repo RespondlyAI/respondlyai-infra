@@ -30,7 +30,7 @@ spec:
       containers:
         - name: spring-boot-app
           # IMPORTANT: Update with your actual Docker Hub username!
-          image: shubhojitmitradev/org-service-backend-server:latest
+          image: shubhojitmitradev/organization-service:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
