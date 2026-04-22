@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: gateway-app
-          image: shubhojitmitradev/api-gateway:latest
+          image: shubhojitmitradev/respondlyai-gateway:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
