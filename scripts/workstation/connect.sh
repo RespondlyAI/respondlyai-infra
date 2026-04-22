@@ -2,7 +2,7 @@
 RG="respondlyai-rg"
 VM="dev-workstation"
 ADMIN_USER="respondlyai-dev"
-KEY_PATH="../../dev-workstation_key.pem"
+KEY_PATH="$(cd "$(dirname "$0")" && realpath ../../dev-workstation_key.pem)"
 
 echo -e "\033[1;33mLocating server IP...\033[0m"
 IP=$(az vm show -d -g "$RG" -n "$VM" --query publicIps -o tsv)
