@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-service
+  namespace: respondlyai
+spec:
+  ports:
+    - name: tcp-client
+      port: 9092
+      targetPort: 9092
+    - name: tcp-internal
+      port: 9093
+      targetPort: 9093
+    - name: tcp-controller
+      port: 9094
+      targetPort: 9094
+  selector:
+    app: kafka
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+  namespace: respondlyai
+spec:
+  selector:
+    matchLabels:
+      app: kafka
+  serviceName: kafka-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+        - name: kafka
+          image: docker.io/bitnami/kafka:3.7.0
+          ports:
+            - containerPort: 9092
+            - containerPort: 9093
+            - containerPort: 9094
+          env:
+            - name: KAFKA_CFG_NODE_ID
+              value: "1"
+            - name: KAFKA_CFG_PROCESS_ROLES
+              value: "broker,controller"
+            - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+              value: "1@127.0.0.1:9094"
+            - name: KAFKA_CFG_LISTENERS
+              value: "PLAINTEXT://:9092,CONTROLLER://:9094,INTERNAL://:9093"
+            - name: KAFKA_CFG_ADVERTISED_LISTENERS
+              value: "PLAINTEXT://kafka-service.respondlyai.svc.cluster.local:9092,INTERNAL://127.0.0.1:9093"
+            - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+              value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT"
+            - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
+              value: "CONTROLLER"
+            - name: KAFKA_CFG_INTER_BROKER_LISTENER_NAME
+              value: "INTERNAL"
+            - name: ALLOW_PLAINTEXT_LISTENER
+              value: "yes"
