@@ -51,6 +51,14 @@ spec:
                   key: ORG_DB_URL
             - name: SPRING_PROFILES_ACTIVE
               value: "dev"
+
+            - name: KAFKA_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: respondlyai-config
+                  key: KAFKA_URL
+            - name: SPRING_PROFILES_ACTIVE
+              value: "dev"
               
           resources:
             requests:
