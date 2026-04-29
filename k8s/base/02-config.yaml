@@ -7,6 +7,9 @@ data:
   # K8s Internal DNS URLs for the databases
   AUTH_DB_URL: "jdbc:postgresql://auth-db-service.respondlyai.svc.cluster.local:5432/auth_db"
   ORG_DB_URL: "jdbc:postgresql://org-db-service.respondlyai.svc.cluster.local:5432/org_db"
+
+  # Add the Kafka K8s DNS URL here
+  KAFKA_URL: "kafka-service.respondlyai.svc.cluster.local:9092"
   
   # K8s Internal DNS for Redis
   REDIS_HOST: "auth-redis-service.respondlyai.svc.cluster.local"
